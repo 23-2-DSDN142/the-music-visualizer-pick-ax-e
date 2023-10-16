@@ -76,6 +76,13 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
    // draw the hairy cat - currently using the spectrum
    //************************************************************/
 
+   hairyCat.y = stageFloorY;
+
+   if (hairyCat.y < stageFloorY && drumCat.y >= stageFloorY)
+   {
+    hairyCat.y++;
+   }
+
    let spectrum = fft.analyze();
    fill(42, 191, 245);
    stroke(42, 191, 245);
@@ -92,20 +99,19 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
       let x0 = 10 * Math.cos(angle);
       let y0 = 10 * Math.sin(angle)*2;
 
-      line(hairyCat.x+x0,stageFloorY+y0,hairyCat.x+x*2.5,stageFloorY+y*2.5);
+      line(hairyCat.x+x0,hairyCat.y+y0,hairyCat.x+x*2.5,hairyCat.y+y*4);
   }
   stroke(0);
   fill(255);
 
-  
- // ellipse(catX,catY,100,200);
-  ellipse(hairyCat.x-20,stageFloorY-5,30);
-  ellipse(hairyCat.x+20,stageFloorY-5,30);
+
+  ellipse(hairyCat.x-20,hairyCat.y-30,25,35);
+  ellipse(hairyCat.x+20,hairyCat.y-30,25,35);
   fill(42, 191, 245);
   
   
   //mouth
-  arc(hairyCat.x,stageFloorY+20,60,40,0,180);
+  arc(hairyCat.x,hairyCat.y+20,60,40,0,180);
 
 
 
