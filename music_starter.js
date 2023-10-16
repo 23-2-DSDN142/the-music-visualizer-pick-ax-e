@@ -112,11 +112,10 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
   //****************************************************/
   //Draw the drum cat
   //****************************************************/
-  const debug = true;
-  drumCat.y = 180;
+
 
   // Drop the cat after voclaCat has landed
-  if( (counter > 0 && vocalCat.y >= stageFloorY) || debug )
+  if( (counter > 0 && vocalCat.y >= stageFloorY) )
   { 
     if (drumCat.y < stageFloorY)
     {
@@ -126,13 +125,19 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
 // this is a non linear mapping. still goes from 0 to 100 but is scaled in log2
   let drumCatLogScale = Math.pow(map(drum,0, 100,1,Math.sqrt(100)),2);   
 
-  (drum > 70) ? fill(255,0,0) : fill(42, 191, 245);
- // ellipse(drumCatX,catY, 100,drumCatHeadCrush);
 
- //body
+
+ //body and Head
   let squish = drumCatLogScale/2;
   image(drumCat.Head, drumCat.x-50-drumCatLogScale/2 , drumCat.y-90+squish/2,100+drumCatLogScale,190-squish); 
-  image(drumCat.Body, drumCat.x-100, drumCat.y,200,200);
+  image(drumCat.Body, drumCat.x-100, drumCat.y-20,200,200);
+
+  // tail for loud bits  
+      stroke(0);
+      strokeWeight(20);
+      line(drumCat.x-60,drumCat.y+110, drumCat.x-80 - squish,drumCat.y+squish+60);
+
+  strokeWeight(1);
 
   //extra neck
   //noStroke();
@@ -146,8 +151,14 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
   fill(0);
   ellipse(drumCat.x+20,drumCat.y,drumCatLogScale/4,12);
   ellipse(drumCat.x-20,drumCat.y,drumCatLogScale/4,12);
-  
-  stroke(255);
+  //Whiskers
+  stroke(255)
+  for(let i = 0;i < 3;++i)
+  {
+    line(drumCat.x+drumCatLogScale/2+20,drumCat.y+20+(2*i),drumCat.x+drumCatLogScale+40 -(4*i),drumCat.y + (5*i)+20 )
+    line(drumCat.x-drumCatLogScale/2-20,drumCat.y+20+(2*i),drumCat.x-drumCatLogScale-40 +(4*i),drumCat.y + (5*i)+20 )
+  }
+
   //mouth
   arc(drumCat.x,drumCat.y+30,30 + drumCatLogScale/3 ,drumCatLogScale/2 ,0,180); 
 
