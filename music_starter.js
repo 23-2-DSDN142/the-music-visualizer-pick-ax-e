@@ -83,18 +83,26 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
     hairyCat.y++;
    }
 
-   //draw initial body, use a load of ellipses
-
-
-
-   let spectrum = fft.analyze();
    fill(42, 191, 245);
    stroke(42, 191, 245);
+
+
+   //draw initial body, use a load of ellipses
+
+   ellipse(hairyCat.x-25,hairyCat.y-10,20,160);//ear
+   ellipse(hairyCat.x+25,hairyCat.y-10,20,160);
+
+   ellipse(hairyCat.x-35,hairyCat.y+10,25,130);
+   ellipse(hairyCat.x+35,hairyCat.y+10,25,130);
+   rect(hairyCat.x, hairyCat.y+35, 110, 80, 25);
+
+   let spectrum = fft.analyze();
+  
    
     for (let i = 0; i< spectrum.length; i++){
       let angle = map(i,0,spectrum.length,0,360); // hair angle
       let volume = spectrum[i];
-      let radius = map(volume,0,256,20,50); // hair length
+      let radius = map(volume,0,256,20,40); // hair length
       
        
       let x = radius * Math.cos(angle*2);
@@ -103,19 +111,19 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
       let x0 = 10 * Math.cos(angle);
       let y0 = 10 * Math.sin(angle)*2;
 
-      line(hairyCat.x+x0,hairyCat.y+y0,hairyCat.x+x*2.5,hairyCat.y+y*4);
+      line(hairyCat.x+x0,hairyCat.y+y0,hairyCat.x + x*2.5,hairyCat.y + y*4);
   }
   stroke(0);
   fill(255);
 
-
-  ellipse(hairyCat.x-20,hairyCat.y-30,25,35);
-  ellipse(hairyCat.x+20,hairyCat.y-30,25,35);
+  //draw eyes0
+  ellipse(hairyCat.x-10,hairyCat.y-50,15,20);
+  ellipse(hairyCat.x+10,hairyCat.y-50,15,20);
   fill(42, 191, 245);
   
   
   //mouth
-  arc(hairyCat.x,hairyCat.y+20,60,40,0,180);
+  arc(hairyCat.x,hairyCat.y-35,30,20,0,180);
 
 
 
