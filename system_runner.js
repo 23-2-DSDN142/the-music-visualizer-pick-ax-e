@@ -1,5 +1,5 @@
-const canvasWidth = 540;
-const canvasHeight = 960;
+const canvasWidth = 1024;
+const canvasHeight = 600;
 
 
 let mainCanvas;
@@ -43,6 +43,7 @@ function songLoadedSoFar(soFar) {
 function preload() {
   table = loadTable('volumes.csv', 'csv');
   words = loadStrings('words.txt');
+
 }
 
 let volumes = [];
