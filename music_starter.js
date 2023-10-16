@@ -83,6 +83,10 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
     hairyCat.y++;
    }
 
+   //draw initial body, use a load of ellipses
+
+
+
    let spectrum = fft.analyze();
    fill(42, 191, 245);
    stroke(42, 191, 245);
