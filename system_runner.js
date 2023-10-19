@@ -1,7 +1,7 @@
-const canvasWidth = 1024;
-const canvasHeight = 600;
+const canvasWidth = 1536;
+const canvasHeight = 864;
 
-
+ 
 let mainCanvas;
 
 let textInput;

@@ -3,6 +3,7 @@ let firstRun = true;
 const drumCat = {Head:undefined,Body:undefined,y:0, x:0}; // javascript Object.
 const hairyCat = {y:0, x:0}; // javascript Object.
 const vocalCat = {y:0, x:0}; // javascript Object.
+const pianoCat = {Piano:undefined,Arm:undefined,Tail:undefined, Cat:undefined, y:0, x:0};
 
 // going to hijack the spectrum. Muhaahaahaa...
 let fft = new p5.FFT();
@@ -16,32 +17,41 @@ const spectrumLines = [];
 // vocal, drum, bass, and other are volumes ranging from 0 to 100
 function draw_one_frame(words, vocal, drum, bass, other, counter) {
 
-  const stageFloorY = Math.floor(height/2);
-  background(217, 50, 50);
+  const stageFloorY = Math.floor(height * 2/3);
+  background(71, 12, 247);
   textFont('Helvetica'); // please use CSS safe fonts
   rectMode(CENTER)
   textSize(24);
 
   drumCat.x = Math.floor(width*1/5);
   vocalCat.x = Math.floor(width*2/5);
-  hairyCat.x = Math.floor(width*4/5);
+  hairyCat.x = Math.floor(width*3/5);
+  pianoCat.x = Math.floor(width*4/5);
 
   if(counter == 0)
   {
     drumCat.y = 0;
     hairyCat.y = 0;
     vocalCat.y = 0;
+    pianoCat.y  = 0;
   }
 
   if(firstRun)
   {
-    drumCat.Head = loadImage("bulge cat.png");
-    drumCat.Body = loadImage("bulge cat body.png");
+    drumCat.Head = loadImage("assets/drumcat_head.png");
+    drumCat.Body = loadImage("assets/drumcat_body.png");
+
+    // piano cat
+    pianoCat.Cat = loadImage("assets/piano cat.png");
+    pianoCat.Arm = loadImage("assets/piano arm.png");
+    pianoCat.Tail = loadImage("assets/piano tail.png");
+  
+
+    //singing cat
+    pianoCat.Piano = loadImage("assets/piano.png");
+
     firstRun = false;
   }
-
-
-
 
 
    //***********************************************************/
@@ -66,10 +76,15 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
     spectrumLines.length = 128;
     spectrumLines.fill(0); 
   }
-  // plot from the back(oldest) and come foward to the current one so they overwrite.
-  for (let s = spectrumLines.length-1 ; s >= 0 ; --s)
+
+  plotStage();
+  
+ // for (let s = spectrumLines.length-1 ; s >= 0 ; --s)
+ // for (let s = 0; s < spectrumLines.length ; ++s)
   {  
-    plotSpectrumRow(s);
+  {  
+  //  plotSpectrumRowOriginal(s);
+   
   }
 
    //***********************************************************/
@@ -131,7 +146,7 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
   //Draw the drum cat
   //****************************************************/
 
-
+ // drumCat.y = stageFloorY;
   // Drop the cat after voclaCat has landed
   if( (counter > 0 && vocalCat.y >= stageFloorY) )
   { 
@@ -157,10 +172,6 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
 
   strokeWeight(1);
 
-  //extra neck
-  //noStroke();
-  fill(0);
-  //rect(catX/2+90.5,catY+50,48,180)
   fill(255);
   //eyes
   ellipse(drumCat.x+20+drumCatLogScale/10,drumCat.y,drumCatLogScale/2 + 20,15+drumCatLogScale/10);
@@ -170,16 +181,28 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
   ellipse(drumCat.x+20,drumCat.y,drumCatLogScale/4,12);
   ellipse(drumCat.x-20,drumCat.y,drumCatLogScale/4,12);
   //Whiskers
-  stroke(255)
+  stroke(255);
   for(let i = 0;i < 3;++i)
   {
-    line(drumCat.x+drumCatLogScale/2+20,drumCat.y+20+(2*i),drumCat.x+drumCatLogScale+40 -(4*i),drumCat.y + (5*i)+20 )
-    line(drumCat.x-drumCatLogScale/2-20,drumCat.y+20+(2*i),drumCat.x-drumCatLogScale-40 +(4*i),drumCat.y + (5*i)+20 )
+    line(drumCat.x+drumCatLogScale/2+20,drumCat.y+20+(2*i),drumCat.x+drumCatLogScale+40 -(4*i),drumCat.y + (5*i)+20 );
+    line(drumCat.x-drumCatLogScale/2-20,drumCat.y+20+(2*i),drumCat.x-drumCatLogScale-40 +(4*i),drumCat.y + (5*i)+20 );
   }
 
   //mouth
   arc(drumCat.x,drumCat.y+30,30 + drumCatLogScale/3 ,drumCatLogScale/2 ,0,180); 
 
+  // stick somethig that looks sort of like drums in front of the cat
+  // bassdrum
+  stroke('red'); fill('red');
+  ellipse(drumCat.x+65, drumCat.y+140,90);
+  stroke('black'); fill('white');
+  ellipse(drumCat.x+75, drumCat.y+144,90);
+  // Cymbal
+  stroke('black'); fill('yellow');
+  ellipse(drumCat.x+10, drumCat.y+100,100,10);
+  stroke('white');strokeWeight(3);
+  line(drumCat.x+10,drumCat.y+100, drumCat.x+20,drumCat.y+200);
+  line(drumCat.x+10,drumCat.y+100, drumCat.x+0,drumCat.y+200);
   }
 
   //********************************************************/
@@ -217,23 +240,40 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
 
 
   /****************************************************/
-  /* TODO bass-cat                                    */
+  /* TODO bass-cat    = guitarCat                     */
   /****************************************************/
 
 
   
   /****************************************************/
-  /* TODO   other-cat                                 */
+  /* TODO   other-cat  = piano cat                    */
   /****************************************************/
+  pianoCat.y = stageFloorY;
 
-
+  let footTap = map(other, 50,100 , -20 , 20,true);
+  image(pianoCat.Piano, pianoCat.x-230, pianoCat.y+50 - 0.1*other,400,150); 
+  //image(pianoCat.Arm,pianoCat.x-335, pianoCat.y-210+ footTap,300,300);
+  image(pianoCat.Cat,pianoCat.x-180, pianoCat.y-120+ footTap,250,200);
+  image(pianoCat.Tail,pianoCat.x-450, pianoCat.y-350+ footTap,900,700+other*2);
 }
 
-  /************************************************/
-  /*  plots a row of spectrum lines
-  /*  shrinks the width, and increses the height
-  /*  proportional to n 
-  /************************************************/
+
+
+
+function plotStage()
+{
+    for(let n = 0;n < 128;++n)
+    {
+      let margin = (1*n);
+      let h = height-(2*n);
+      stroke(128);
+      strokeWeight(2);
+      line(margin,h,width-margin,h);
+  }
+}
+
+  
+
   function plotSpectrumRow(n)
   {
     
@@ -269,3 +309,4 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
 
     endShape();
   }
+}
