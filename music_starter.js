@@ -46,7 +46,7 @@ function draw_one_frame(words, vocal, drum, bass, other, counter)
   {
     // drum cat
     drumCat.Head = loadImage("assets/drumcat_head.png");
-    drumCat.Body = loadImage("assets/drumcat_body.png");
+    drumCat.Body = loadImage("assets/drumcat_body.png~");
 
     // piano cat
     pianoCat.Cat = loadImage("assets/piano cat.png");
