@@ -1,43 +1,50 @@
 let firstRun = true;
 
-const drumCat = {Head:undefined,Body:undefined,y:0, x:0}; // javascript Object.
-const hairyCat = {y:0, x:0}; // javascript Object.
-const vocalCat = {y:0, x:0}; // javascript Object.
-const pianoCat = {Piano:undefined,Arm:undefined,Tail:undefined, Cat:undefined, y:0, x:0};
+const drumCat = {Head:undefined,Body:undefined,y:0, x:0,FinalX:0}; // javascript Object.
+const hairyCat = {Body:undefined, y:0, x:0}; // javascript Object.
+const pianoCat = {Piano:undefined, Arm:undefined,Tail:undefined, Cat:undefined, y:0, x:0};
+const singingCat = {Body:undefined, y:0, x:0};
+const guitarCat = {Body:undefined, PawBottem:undefined, PawTop:undefined, Guitar:undefined, Face:undefined, Arm:undefined,y:0, x:0};
+
 
 // going to hijack the spectrum. Muhaahaahaa...
-let fft = new p5.FFT();
+const fft = new p5.FFT();
 const N = 12;          // 1/N octave bands. One Octave is a doubling in frequency.
 const fCtr0 = 15.625; // Hz
-let octavebands = fft.getOctaveBands(N, fCtr0);
+const octavebands = fft.getOctaveBands(N, fCtr0);
 const spectrumLines = []; 
-
+let backgroundColor = [0, 0, 128];  
 
 
 // vocal, drum, bass, and other are volumes ranging from 0 to 100
-function draw_one_frame(words, vocal, drum, bass, other, counter) {
+function draw_one_frame(words, vocal, drum, bass, other, counter) 
+{
 
   const stageFloorY = Math.floor(height * 2/3);
-  background(71, 12, 247);
+  background(backgroundColor);
   textFont('Helvetica'); // please use CSS safe fonts
   rectMode(CENTER)
   textSize(24);
 
-  drumCat.x = Math.floor(width*1/5);
-  vocalCat.x = Math.floor(width*2/5);
-  hairyCat.x = Math.floor(width*3/5);
-  pianoCat.x = Math.floor(width*4/5);
+  drumCat.FinalX = Math.floor(width*1/6); // drumCat comes in from the left side
+  guitarCat.x = Math.floor(width*2/6);
+  hairyCat.x = Math.floor(width*3/6);
+  pianoCat.x = Math.floor(width*4/6);
+  singingCat.x = Math.floor(width*5/6);
 
   if(counter == 0)
   {
-    drumCat.y = 0;
-    hairyCat.y = 0;
-    vocalCat.y = 0;
-    pianoCat.y  = 0;
+    drumCat.y = stageFloorY -30; // drumCat comes in from the left side
+    drumCat.x = 0;
+    hairyCat.y = 150;
+    guitarCat.y = 400;
+    pianoCat.y = 0;
+    singingCat.y = 0;
   }
 
   if(firstRun)
   {
+    // drum cat
     drumCat.Head = loadImage("assets/drumcat_head.png");
     drumCat.Body = loadImage("assets/drumcat_body.png");
 
@@ -45,100 +52,89 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
     pianoCat.Cat = loadImage("assets/piano cat.png");
     pianoCat.Arm = loadImage("assets/piano arm.png");
     pianoCat.Tail = loadImage("assets/piano tail.png");
+    pianoCat.Piano = loadImage("assets/piano.png");
+  
+    //singing cat
+    singingCat.Body = loadImage("assets/singing cat_white.png");
+
+    //Guitar cat
+    
+    guitarCat.Body =  loadImage("assets/guitar cat body.png");
+    guitarCat.Guitar =  loadImage("assets/guitar.png");
+    guitarCat.PawBottem =  loadImage("assets/guitar cat bottom paw.png");
+    guitarCat.Arm =  loadImage("assets/guitar cat arm.png");
+    guitarCat.PawTop =  loadImage("assets/guitar cat top paw.png");
   
 
-    //singing cat
-    pianoCat.Piano = loadImage("assets/piano.png");
+
+    //hairyCat
+    hairyCat.Body = loadImage("assets/singing cat.png");
+    
+    
 
     firstRun = false;
   }
 
 
-   //***********************************************************/
-   // draw the 'stage'
-   //************************************************************/
+  drawBackWall(counter);
 
-  if(counter > 0) // counter is 0 when in editor mode
-  {
-    let x = fft.analyze(); // x = the raw values. I dont actually use it. As you have to call Analyse anyway I left it here for debug.
-    let spectrum2 = fft.logAverages(octavebands);
-    spectrumLines.push(spectrum2);
-     
-    if(spectrumLines.length > 128)
-    {
-      spectrumLines.shift();
-    }
 
-  }
-  else
-  {
-    // build a flat stage.
-    spectrumLines.length = 128;
-    spectrumLines.fill(0); 
-  }
+  // this is a non linear mapping. still goes from 0 to 255 but uses a squared scale
+  plotStage(
+    [ 
+      Math.floor(Math.pow(map(drum,0, 100,1,Math.sqrt(255)),2)),
+      Math.floor(Math.pow(map(drum,0, 100,1,Math.sqrt(255)),2)),
+      Math.floor(Math.pow(map(drum,0, 100,1,Math.sqrt(255)),2)),
+    ]
+    );
 
-  plotStage();
-  
- // for (let s = spectrumLines.length-1 ; s >= 0 ; --s)
- // for (let s = 0; s < spectrumLines.length ; ++s)
-  {  
-  {  
-  //  plotSpectrumRowOriginal(s);
-   
-  }
+
 
    //***********************************************************/
    // draw the hairy cat - currently using the spectrum
    //************************************************************/
 
-   hairyCat.y = stageFloorY;
-
-   if (hairyCat.y < stageFloorY && drumCat.y >= stageFloorY)
+   if (hairyCat.y < stageFloorY && drumCat.x == drumCat.FinalX)
    {
     hairyCat.y++;
    }
 
-   fill(42, 191, 245);
-   stroke(42, 191, 245);
-
-
-   //draw initial body, use a load of ellipses
-
-   ellipse(hairyCat.x-25,hairyCat.y-10,20,160);//ear
-   ellipse(hairyCat.x+25,hairyCat.y-10,20,160);
-
-   ellipse(hairyCat.x-35,hairyCat.y+10,25,130);
-   ellipse(hairyCat.x+35,hairyCat.y+10,25,130);
-   rect(hairyCat.x, hairyCat.y+35, 110, 80, 25);
+   fill(255);
+   stroke(255);
 
    let spectrum = fft.analyze();
   
    
-    for (let i = 0; i< spectrum.length; i++){
+    for (let i = 0; i< spectrum.length; i++)
+    {
       let angle = map(i,0,spectrum.length,0,360); // hair angle
       let volume = spectrum[i];
       let radius = map(volume,0,256,20,40); // hair length
       
        
-      let x = radius * Math.cos(angle*2);
-      let y = radius * Math.sin(angle*2);
+      let x = radius * Math.cos(angle*2)*3;
+      let y = radius * Math.sin(angle*2) + 100;
 
-      let x0 = 10 * Math.cos(angle);
-      let y0 = 10 * Math.sin(angle)*2;
+      let x0 = 5 * Math.cos(angle);
+      let y0 = 5 * Math.sin(angle) + 100;
 
-      line(hairyCat.x+x0,hairyCat.y+y0,hairyCat.x + x*2.5,hairyCat.y + y*4);
+      line(hairyCat.x+x0,hairyCat.y+y0,hairyCat.x + x,hairyCat.y + y);
   }
-  stroke(0);
-  fill(255);
+ 
+  image(hairyCat.Body, hairyCat.x-140, hairyCat.y-120,300,300);
 
-  //draw eyes0
-  ellipse(hairyCat.x-10,hairyCat.y-50,15,20);
-  ellipse(hairyCat.x+10,hairyCat.y-50,15,20);
-  fill(42, 191, 245);
-  
-  
-  //mouth
-  arc(hairyCat.x,hairyCat.y-35,30,20,0,180);
+  //halo
+  stroke(255);strokeWeight(3);noFill();
+  ellipse(hairyCat.x-4, hairyCat.y-60,70,15);
+
+  // mouth
+  let treblePower = fft.getEnergy('treble');
+  let vh = Math.pow(map(treblePower,0, 255, 0, Math.sqrt(100)),2);
+  fill(0);
+  rect(hairyCat.x-2,hairyCat.y+30,30,vh,10,10,10,10);
+
+  fill(255); stroke(255);
+
 
 
 
@@ -148,11 +144,11 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
 
  // drumCat.y = stageFloorY;
   // Drop the cat after voclaCat has landed
-  if( (counter > 0 && vocalCat.y >= stageFloorY) )
+  if( (counter > 0 && singingCat.y >= stageFloorY) )
   { 
-    if (drumCat.y < stageFloorY)
+    if (drumCat.x < drumCat.FinalX)
     {
-      drumCat.y++;
+      drumCat.x++;
     }
   
 // this is a non linear mapping. still goes from 0 to 100 but is scaled in log2
@@ -206,87 +202,149 @@ function draw_one_frame(words, vocal, drum, bass, other, counter) {
   }
 
   //********************************************************/
-  // Draw Vocal Cat
+  // Draw Singing Cat
   //********************************************************/
     
   fill(42, 191, 245);
   
 
-  let vocalHeight = Math.pow(map(vocal,0, 100, 0, Math.sqrt(50)),2);
+  let vocalHeight = Math.pow(map(vocal,30, 100, 0, Math.sqrt(50)),2);
 
   // Drop the cat when the music starts
   if(counter > 0)
   { 
-    if (vocalCat.y < stageFloorY)
+    if (singingCat.y < stageFloorY)
     {
-      vocalCat.y++;
+      singingCat.y++;
     }
-
-    ellipse(vocalCat.x, vocalCat.y, 100 );
-
-  // draw vocal cat mouth 
-  fill(0);
-  rect(vocalCat.x,vocalCat.y+15,20,vocalHeight);
+    image(singingCat.Body,singingCat.x-137,singingCat.y-100,300,300);
+ 
+    // draw singing cat mouth 
+    fill(0);
+    rect(singingCat.x,singingCat.y+46,30,vocalHeight,10,10,10,10);
 
     // display "words"
     fill(255,255,0);
     textAlign(CENTER);
     textSize(vocal);
-    text(words, vocalCat.x, vocalCat.y);
+    text(words, singingCat.x, singingCat.y);
 
   }    
   
- 
-
 
   /****************************************************/
-  /* TODO bass-cat    = guitarCat                     */
+  /* bass-cat    = guitarCat                     */
   /****************************************************/
+
+  image(guitarCat.Body,guitarCat.x-200,guitarCat.y,400,400);
+
+  push();
+    
+  translate(guitarCat.x+10, guitarCat.y+215)
+
+  rotate( map(bass,0,100,-30,30));
+  image(guitarCat.Guitar,-150,-200,300,300);
+  image(guitarCat.PawTop,-205,-260,400,400);
+ //image(guitarCat.Guitar,guitarCat.x-150,guitarCat.y+50,300,300);
+  rect(0,0,10,20);
+  pop();
+
+  image(guitarCat.PawBottem,guitarCat.x-200,guitarCat.y,400,400);
+  
+  image(guitarCat.Arm,guitarCat.x-200,guitarCat.y,400,400);
+
+
+    
+
+
 
 
   
   /****************************************************/
-  /* TODO   other-cat  = piano cat                    */
+  /* other-cat  = piano cat                    */
   /****************************************************/
   pianoCat.y = stageFloorY;
 
   let footTap = map(other, 50,100 , -20 , 20,true);
-  image(pianoCat.Piano, pianoCat.x-230, pianoCat.y+50 - 0.1*other,400,150); 
+  image(pianoCat.Piano, pianoCat.x-170, pianoCat.y - 0.1*other,330,150); 
   //image(pianoCat.Arm,pianoCat.x-335, pianoCat.y-210+ footTap,300,300);
-  image(pianoCat.Cat,pianoCat.x-180, pianoCat.y-120+ footTap,250,200);
-  image(pianoCat.Tail,pianoCat.x-450, pianoCat.y-350+ footTap,900,700+other*2);
+  image(pianoCat.Cat,pianoCat.x-150, pianoCat.y-170+ footTap,250,200);
+  image(pianoCat.Tail,pianoCat.x-430, pianoCat.y-400+ footTap,900,700+other*2);
+
+
+  let prog = getDuration();
+  stroke(255);fill(255);strokeWeight(1);
+  textSize(10);
+  text("Progress: " + Math.floor(prog.current) + " / " + Math.floor(prog.duration), width-100, 20 );
+
+}
+
+
+/************************************************************
+ *  Helper functions
+ ************************************************************/
+
+function getDuration()
+{
+
+  if(song)
+  {
+    return {  
+            relativepos:song.currentTime()/song.duration(), 
+            current:song.currentTime(),
+            duration:song.duration()
+            };
+  }
+  else{
+    return { 
+            relativepos:0, 
+            current:0, 
+            duration:0
+           }; 
+  }
 }
 
 
 
-
-function plotStage()
+//edgecolorarray = [R,G,B]
+function plotStage(edgecolorarray)
 {
-    for(let n = 0;n < 128;++n)
-    {
-      let margin = (1*n);
-      let h = height-(2*n);
-      stroke(128);
-      strokeWeight(2);
-      line(margin,h,width-margin,h);
-  }
+  
+  const y = Math.floor(height * 4/5);
+
+  stroke(255);fill(0);strokeWeight(0);
+  ellipse(width/2,y+50,width,200);
+  rect(width/2,y+25,width,50);
+  fill(128);strokeWeight(5);
+  if(edgecolorarray) {stroke(edgecolorarray)};  // colourise the stroke if a color array was supplied. 
+  ellipse(width/2,y,width,200);
+  strokeWeight(1);
+
 }
 
   
 
+
+
+
   function plotSpectrumRow(n)
   {
-    
+     
     const spectrum = spectrumLines[n];
-    //console.debug(spectrum);
-    const margin = (1*n);
-    const h = height-(2*n);
+    const margin = (0);
+    const h = height-(2*n)-150; //height-(2*n)-150;
     let energy = fft.getEnergy('bass','treble');
-    stroke(0);
+    
+    // draw a thick  line the same color as the background
+    stroke(backgroundColor);
     strokeWeight(2);
     line(margin,h,width-margin,h);
+    
     strokeWeight(1);
-    stroke(energy,255-energy,255-energy);
+    if(energy > 0){
+      stroke(energy,255-energy,255-energy);
+
+
     noFill();
     //let lastpoint = {x:margin,y:h};
     beginShape();
@@ -308,5 +366,47 @@ function plotStage()
    // vertex(width,h) ;
 
     endShape();
+    }
+    else
+      {
+        // do nuthin.
+      }
+    
   }
-}
+
+
+
+  function drawBackWall(counter)
+  {
+    //***********************************************************/
+    // draw the 'spectrum stage'
+    //************************************************************/
+
+    if(counter > 0) // counter is 0 when in editor mode
+    {
+      let x = fft.analyze(); // x = the raw values. I dont actually use it. As you have to call Analyse anyway I left it here for debug.
+      let spectrum2 = fft.logAverages(octavebands);
+      spectrumLines.push(spectrum2);
+      
+      if(spectrumLines.length > 128)
+      {
+        spectrumLines.shift();
+      }
+
+    }
+    else
+    {
+      // build a flat stage.
+      spectrumLines.length = 128;
+      spectrumLines.fill(0); 
+    }
+
+    
+    
+    for (let s = spectrumLines.length-1 ; s >= 0 ; --s)
+    {  
+      plotSpectrumRow(s);
+    }
+
+
+  }
